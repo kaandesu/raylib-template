@@ -6,20 +6,9 @@ CMakeCache.txt
 CMakeFiles
 CMakeScripts
 Testing
-Makefile
 cmake_install.cmake
 install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
 CMakeUserPresets.json
-# Prerequisites
-*.d
-
-# Unignore specific files and directories
-# !/lib/
-# !/lib/raylib/
-# !/lib/raylib/include/
-# !/lib/raylib/libraylib.a
-# !/lib/raylib/raylib-config-version.cmake  # Optional
-# !/lib/raylib/raylib.pc                     # Optional
