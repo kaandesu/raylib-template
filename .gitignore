@@ -1,7 +1,6 @@
 build
 .cache
 .DS_Store
-CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
