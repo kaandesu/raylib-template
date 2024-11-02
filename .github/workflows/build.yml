@@ -1,12 +1,13 @@
-name: Single Platform Release
+name: Build and Release
 
 on:
   push:
     tags:
-      - "v*"
+      - "v*" # This triggers on version tags
+  pull_request:
+    branches: ["main"]
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
   BUILD_TYPE: Release
 
 jobs:
@@ -16,28 +17,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Step to build Raylib (if it's not pre-built)
+      - name: Build Raylib
+        run: |
+          cd lib/raylib
+          mkdir build && cd build
+          cmake ..
+          make
+
       - name: Configure CMake
-        run: cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
 
       - name: Build
-        run: cmake --build ${{ github.workspace }}/build --config ${{ env.BUILD_TYPE }}
+        run: cmake --build build --config ${{ env.BUILD_TYPE }}
+
+      - name: Test
+        working-directory: build
+        run: ctest -C ${{ env.BUILD_TYPE }}
 
       - name: Create Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Binary
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          files: |
-            ${{ github.workspace }}/build/my_program  # Update with the actual path to your binary
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        run: |
+          mkdir -p release
+          cp build/my_program release/
+          cd release
+          zip release.zip my_program
+        # Add steps to upload the zip as a release artifact if needed
