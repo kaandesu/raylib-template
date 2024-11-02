@@ -1,11 +1,9 @@
-name: Build and Release
+name: CMake on a single platform
 
 on:
   push:
     tags:
-      - "v*" # This triggers on version tags
-  pull_request:
-    branches: ["main"]
+      - "v*"
 
 env:
   BUILD_TYPE: Release
@@ -17,29 +15,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Step to build Raylib (if it's not pre-built)
-      - name: Build Raylib
+      - name: Build raylib
         run: |
           cd lib/raylib
-          mkdir build && cd build
-          cmake ..
+          mkdir -p build && cd build
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ..
           make
 
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }}
-
-      - name: Build
-        run: cmake --build build --config ${{ env.BUILD_TYPE }}
+      - name: Build my_program
+        run: |
+          mkdir -p build && cd build
+          cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} ..
+          make
 
       - name: Test
         working-directory: build
         run: ctest -C ${{ env.BUILD_TYPE }}
-
-      - name: Create Release
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        run: |
-          mkdir -p release
-          cp build/my_program release/
-          cd release
-          zip release.zip my_program
-        # Add steps to upload the zip as a release artifact if needed
