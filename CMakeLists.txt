@@ -3,22 +3,23 @@ project(MyProject C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(RAYLIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/raylib")
+set(pwd ${CMAKE_CURRENT_SOURCE_DIR})
+set(RAYLIB_DIR ${pwd}/lib/raylib)
+set(src ${pwd}/src)
 
-include_directories(${RAYLIB_DIR}/include)
+include_directories(
+    ${RAYLIB_DIR}/include
+    ${src}
+)
 
-add_executable(my_program src/main.c)
+add_executable(my_program
+    ${src}/main.c
+)
 
-if(APPLE)
-    target_link_libraries(my_program 
-        "${RAYLIB_DIR}/libraylib.a" 
-        "-framework Cocoa" 
-        "-framework OpenGL" 
-        "-framework IOKit" 
-        "-framework CoreVideo" 
-        ${CMAKE_DL_LIBS} # Dynamically linked libraries (if needed)
-    )
-else()
-    # Linux specific settings (if applicable)
-    target_link_libraries(my_program "${RAYLIB_DIR}/libraylib.a")
-endif()
+target_link_libraries(my_program
+    ${RAYLIB_DIR}/lib/libraylib.a
+    "-framework Cocoa"
+    "-framework OpenGL"
+    "-framework IOKit"
+    "-framework CoreVideo"
+)
